@@ -9,17 +9,25 @@ from api.serializers import ProductTypeSerializer, ProductSerializer
 class ProductTypeList(generics.ListAPIView):
 
     serializer_class = ProductTypeSerializer
+    queryset = ProductType.objects.all()
 
-    # queryset = ProductType.objects.all()
+
+class ProductList(generics.ListAPIView):
+
+    serializer_class = ProductSerializer
 
     def get_queryset(self):
-        return ProductType.objects.all()
+        queryset = Product.objects.all()
+        product_id = self.request.query_params.get('id', None)
+        if product_id is not None:
+            queryset = queryset.filter(id=product_id)
+        return queryset
 
 
-class ProductList(APIView):
+class ProductListByID(generics.ListAPIView):
 
-    def get(self, request):
-        products = Product.objects.all()
-        serializer = ProductSerializer(products, many=True)
-        return Response(serializer.data)
+    serializer_class = ProductSerializer
 
+    def get_queryset(self):
+        product_id = self.kwargs['id']
+        return Product.objects.filter(id=product_id)
